@@ -16,13 +16,23 @@
 
 ## 前置要求
 
-### 1. 安装 Python 依赖
+### 1. 安装 Python
+
+如果没有 Python，需先安装：
+
+- **Windows**: [下载 Python 3.12](https://www.python.org/downloads/)
+- **Mac**: `brew install python3` 或 [官网下载](https://www.python.org/downloads/macos/)
+- **Linux**: `sudo apt install python3` 或 `sudo yum install python3`
+
+安装时勾选 **"Add Python to PATH"**
+
+### 2. 安装 Python 依赖
 
 ```bash
 pip install pyautogui pyperclip python-dotenv
 ```
 
-### 2. 找到 Python 路径
+### 3. 找到 Python 路径
 
 不同系统路径不同：
 - **Windows 常见**: `C:\Users\<用户名>\AppData\Local\Programs\Python\Python312\python.exe`
