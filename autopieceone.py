@@ -5,11 +5,22 @@ import random
 import sys
 import urllib.request
 import json
+import os
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 # Fail-safe: move mouse to corner of screen to abort
 pyautogui.FAILSAFE = True
 
+# Debug mode: If True, simulate actions with logs instead of executing
+IS_DEBUG = os.getenv("IS_DEBUG", "true").lower() == "true"
+
 AVAILABLE_DROPS = ['🍔','🍕','🍦','🍩','🍪','🍟','🎂','🍰','🧀','🍖','🍗','🥩','🍿','🍘','🍙','🍢','🍣','🍤','🥮','🥟','🧁','🍫','🍬','🍆','🥔','🥕','🌽','🌶️','🫑','🥒','🥬','🥦','🧄','🧅','🥜','🫘','🌰','🫛','🍠','🍇','🍈','🍉','🍊','🍋','🍋‍🟩','🍌','🍍','🥭','🍎','🍏','🍐','🍑','🍒','🍓','🫐','🥝','🍅','🫒','🥑','🍞','🥐','🥖','🥨','🥯','🥞','🧇','🥪','🌭','🌮','🌯','🫔','🥛','☕️','🍵','🍶','🍷','🍸️','🍹','🍺','🥃','🥤','🧋','🧃','🧉','⚽️','🏀','🥎','🎾','🏐','⚾️','🏈','🏉','🎱','🎲','🃏','🪨','🕸','🎈','🎉','🎆','🎇','🧨','💣','🎨','🎭️','🧊','💩','🕳️','💊','🧲','🍄','🎃','🐵','🐶','🦊','🐱','🦁','🐯','🐷','🐭','🐹','🐰','🐻','🐨','🐼','🐸','🐲','🐽','🌚','🌝','🌞','🤡','🤖','💀','👹','👻','🐮','🧢','👓','🕶️','🎩','🪖','🤿','🐽','🌪️','🪺']
+
+# Global execution interval in seconds
+EXECUTION_INTERVAL = 5.0
 
 width, height = pyautogui.size()
 center_x, center_y = width // 2, height // 2
@@ -31,14 +42,21 @@ while True:
             print(f"Action: Move & Click ({rand_val:.2f})")
             sys.stdout.flush()
             
-            # Move mouse
-            pyautogui.moveTo(tx, ty, duration=0.5)
-            
-            # Click and hold
-            pyautogui.mouseDown(button='left')
-            hold_time = random.uniform(0.5, 2.0)
-            time.sleep(hold_time)
-            pyautogui.mouseUp(button='left')
+            if IS_DEBUG:
+                print(f"[DEBUG] Would move to ({tx:.0f}, {ty:.0f}), hold left click.")
+                
+                # Simulate hold duration in debug? Maybe just log duration.
+                hold_time = random.uniform(0.5, 2.0)
+                print(f"[DEBUG] maintain click for {hold_time:.2f}s")
+            else:
+                # Move mouse
+                pyautogui.moveTo(tx, ty, duration=0.5)
+                
+                # Click and hold
+                pyautogui.mouseDown(button='left')
+                hold_time = random.uniform(0.5, 2.0)
+                time.sleep(hold_time)
+                pyautogui.mouseUp(button='left')
             
         # 2. Logic if random value < 0.6: Only Move
         elif rand_val < 0.6:
@@ -49,8 +67,11 @@ while True:
             print(f"Action: Move Only ({rand_val:.2f})")
             sys.stdout.flush()
             
-            # Move mouse
-            pyautogui.moveTo(tx, ty, duration=0.5)
+            if IS_DEBUG:
+                print(f"[DEBUG] Would move to ({tx:.0f}, {ty:.0f}) without clicking.")
+            else:
+                # Move mouse
+                pyautogui.moveTo(tx, ty, duration=0.5)
             
         # 3. Logic if random value >= 0.6: Chat API Logic
         else:
@@ -60,23 +81,30 @@ while True:
                 sys.stdout.flush()
                 
                 try:
-                    # Request with 5s timeout
-                    with urllib.request.urlopen("https://api.piece.one/chat.php", timeout=5) as response:
+                    # Request with 5s timeout and User-Agent to avoid 403
+                    req = urllib.request.Request(
+                        "https://api.piece.one/chat.php", 
+                        headers={'User-Agent': 'Mozilla/5.0'}
+                    )
+                    with urllib.request.urlopen(req, timeout=5) as response:
                         if response.status == 200:
                             content = response.read().decode('utf-8')
                             data_json = json.loads(content)
                             chat_data = data_json.get('data', '')
                             
                             if chat_data:
-                                # Press space
-                                pyautogui.press('space')
-                                time.sleep(1)
-                                
-                                # Input data
-                                pyautogui.write(str(chat_data))
-                                
-                                # Press enter
-                                pyautogui.press('enter')
+                                if IS_DEBUG:
+                                    print(f"[DEBUG] Got chat data: '{chat_data}'. Would type it.")
+                                else:
+                                    # Press space
+                                    pyautogui.press('space')
+                                    time.sleep(1)
+                                    
+                                    # Input data
+                                    pyautogui.write(str(chat_data))
+                                    
+                                    # Press enter
+                                    pyautogui.press('enter')
                 except Exception as req_err:
                     print(f"Request failed or timed out: {req_err}")
                     sys.stdout.flush()
@@ -86,19 +114,23 @@ while True:
                 print(f"Action: Drop Item ({rand_val:.2f}, sub: {sub_rand:.2f})")
                 sys.stdout.flush()
                 
-                # Press space
-                pyautogui.press('space')
-                time.sleep(1)
-                
-                # Type "drop:"
-                pyautogui.write("drop:")
-                
-                # Pick random item
+                # Pick random item first to log it
                 drop_item = random.choice(AVAILABLE_DROPS)
-                pyautogui.write(drop_item)
                 
-                # Press enter
-                pyautogui.press('enter')
+                if IS_DEBUG:
+                    print(f"[DEBUG] Would drop item: {drop_item}")
+                else:
+                    # Press space
+                    pyautogui.press('space')
+                    time.sleep(1)
+                    
+                    # Type "drop:"
+                    pyautogui.write("drop:")
+                    
+                    pyautogui.write(drop_item)
+                    
+                    # Press enter
+                    pyautogui.press('enter')
                 
             else:
                 # Placeholder for other sub-cases in >= 0.6
@@ -107,8 +139,8 @@ while True:
                 # Default wait
                 time.sleep(0.5)
         
-        # Small pause between actions
-        time.sleep(0.5)
+        # Wait for the next execution interval
+        time.sleep(EXECUTION_INTERVAL)
     except Exception as e:
         print(f"Stopped: {e}")
         sys.stdout.flush()
