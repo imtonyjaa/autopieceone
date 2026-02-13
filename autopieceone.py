@@ -30,6 +30,12 @@ AVAILABLE_DROPS = ['🍔','🍕','🍦','🍩','🍪','🍟','🎂','🍰','🧀
 # Global execution interval in seconds
 EXECUTION_INTERVAL = 5.0
 
+# Refresh browser every 10 minutes (600 seconds)
+REFRESH_INTERVAL = 600
+
+# Track last refresh time
+last_refresh_time = time.time()
+
 width, height = pyautogui.size()
 center_x, center_y = width // 2, height // 2
 radius = 150
@@ -223,6 +229,15 @@ while True:
                 # Default wait
                 time.sleep(0.5)
         
+        # Check if need to refresh browser (every 10 minutes)
+        current_time = time.time()
+        if current_time - last_refresh_time >= REFRESH_INTERVAL:
+            print("Action: Refreshing browser...")
+            sys.stdout.flush()
+            pyautogui.press('f5')
+            last_refresh_time = current_time
+            time.sleep(2)  # Wait for page to reload
+
         # Wait for the next execution interval
         time.sleep(EXECUTION_INTERVAL)
     except Exception as e:
