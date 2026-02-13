@@ -1,8 +1,13 @@
+import sys
+import io
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
+
 import pyautogui
+import pyperclip
 import time
 import math
 import random
-import sys
 import urllib.request
 import json
 import os
@@ -15,7 +20,7 @@ load_dotenv()
 pyautogui.FAILSAFE = True
 
 # Debug mode: If True, simulate actions with logs instead of executing
-IS_DEBUG = os.getenv("IS_DEBUG", "true").lower() == "true"
+IS_DEBUG = os.getenv("IS_DEBUG", "false").lower() == "true"
 
 AVAILABLE_DROPS = ['🍔','🍕','🍦','🍩','🍪','🍟','🎂','🍰','🧀','🍖','🍗','🥩','🍿','🍘','🍙','🍢','🍣','🍤','🥮','🥟','🧁','🍫','🍬','🍆','🥔','🥕','🌽','🌶️','🫑','🥒','🥬','🥦','🧄','🧅','🥜','🫘','🌰','🫛','🍠','🍇','🍈','🍉','🍊','🍋','🍋‍🟩','🍌','🍍','🥭','🍎','🍏','🍐','🍑','🍒','🍓','🫐','🥝','🍅','🫒','🥑','🍞','🥐','🥖','🥨','🥯','🥞','🧇','🥪','🌭','🌮','🌯','🫔','🥛','☕️','🍵','🍶','🍷','🍸️','🍹','🍺','🥃','🥤','🧋','🧃','🧉','⚽️','🏀','🥎','🎾','🏐','⚾️','🏈','🏉','🎱','🎲','🃏','🪨','🕸','🎈','🎉','🎆','🎇','🧨','💣','🎨','🎭️','🧊','💩','🕳️','💊','🧲','🍄','🎃','🐵','🐶','🦊','🐱','🦁','🐯','🐷','🐭','🐹','🐰','🐻','🐨','🐼','🐸','🐲','🐽','🌚','🌝','🌞','🤡','🤖','💀','👹','👻','🐮','🧢','👓','🕶️','🎩','🪖','🤿','🐽','🌪️','🪺']
 
@@ -96,12 +101,13 @@ while True:
                                 if IS_DEBUG:
                                     print(f"[DEBUG] Got chat data: '{chat_data}'. Would type it.")
                                 else:
-                                    # Press space
+                                    # Press space to open chat
                                     pyautogui.press('space')
                                     time.sleep(1)
                                     
-                                    # Input data
-                                    pyautogui.write(str(chat_data))
+                                    # Use clipboard to paste (avoids emoji issues)
+                                    pyperclip.copy(str(chat_data))
+                                    pyautogui.hotkey('ctrl', 'v')
                                     
                                     # Press enter
                                     pyautogui.press('enter')
@@ -124,10 +130,13 @@ while True:
                     pyautogui.press('space')
                     time.sleep(1)
                     
-                    # Type "drop:"
+                    # Type "drop:" using keyboard
                     pyautogui.write("drop:")
+                    time.sleep(0.3)
                     
-                    pyautogui.write(drop_item)
+                    # Use clipboard to paste item emoji
+                    pyperclip.copy(drop_item)
+                    pyautogui.hotkey('ctrl', 'v')
                     
                     # Press enter
                     pyautogui.press('enter')
