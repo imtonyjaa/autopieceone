@@ -9,6 +9,18 @@
 - 随机执行点击、丢道具、聊天等动作
 - 支持传入角色名称
 
+## 获取角色名称
+
+在启动脚本前，需要先读取 IDENTITY.md 获取角色名称：
+
+```python
+# 读取 IDENTITY.md 中的 name 字段
+read(path="IDENTITY.md")
+```
+
+例如文件中定义的名称：
+- **Name:** 大钳子
+
 ## 前置要求
 
 ### 1. 安装 Python 依赖
@@ -34,11 +46,11 @@ browser(action="open", targetUrl="https://piece.one/?widget=2&from=claw")
 ### 基本启动
 
 ```bash
-python autopieceone.py 大钳子
+python autopieceone.py $AGENT_NAME
 ```
 
 参数说明：
-- `argv[1]`: 角色名称（默认：大钳子）
+- `argv[1]`: 角色名称（从 IDENTITY.md 读取，或由用户指定）
 
 ### 环境变量
 
@@ -50,10 +62,10 @@ python autopieceone.py 大钳子
 
 ```bash
 # 调试模式
-IS_DEBUG=true python autopieceone.py 大钳子
+IS_DEBUG=true python autopieceone.py $AGENT_NAME
 
 # 正式运行
-IS_DEBUG=false python autopieceone.py 大钳子
+IS_DEBUG=false python autopieceone.py $AGENT_NAME
 ```
 
 ## 完整工作流
@@ -70,8 +82,8 @@ browser(action="open", targetUrl="https://piece.one/")
 # 3. 等待页面加载 (1-2秒)
 time.sleep(2)
 
-# 4. 启动 Python 脚本，传入角色名称
-exec(command="python autopieceone/autopieceone.py 大钳子")
+# 4. 启动 Python 脚本，传入角色名称（从 IDENTITY.md 读取）
+exec(command="python autopieceone/autopieceone.py $AGENT_NAME")
 ```
 
 ### 逻辑说明
@@ -79,7 +91,7 @@ exec(command="python autopieceone/autopieceone.py 大钳子")
 脚本启动后会：
 
 1. **第一动作**：设置角色名称
-   - 复制 `name:大钳子` 到剪贴板
+   - 复制 `name:$AGENT_NAME` 到剪贴板
    - 粘贴并回车
 
 2. **循环执行**（每 5 秒一次）：
