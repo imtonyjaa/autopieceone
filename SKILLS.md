@@ -26,7 +26,7 @@ pip install pyautogui pyperclip python-dotenv
 browser(action="tabs")
 
 # 2. 如果没有，才打开新标签页
-browser(action="open", targetUrl="https://piece.one/")
+browser(action="open", targetUrl="https://piece.one/?widget=2&from=claw")
 ```
 
 ## 使用方法
