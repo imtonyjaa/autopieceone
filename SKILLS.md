@@ -2,71 +2,17 @@
 
 让 OpenClaw 自动化控制 piece.one 网页游戏中的角色移动。
 
-## 概述
+## 功能
 
-本技能用于自动控制 [piece.one](https://piece.one/) 网页游戏中的角色：
-- 在屏幕中心的圆周上随机移动
-- 随机执行点击、丢道具、聊天等动作
+- 在屏幕中心的圆周上随机移动角色
+- 随机执行点击、丢道具、聊天、改色等动作
+- 启动时自动设置角色名称和颜色
 
-## 配置（第一次需要）
+## 仓库
 
-在 `TOOLS.md` 中配置以下内容：
-
-```markdown
-### autopieceone
-
-- script_path: autopieceone/autopieceone.py
-- python_path: C:\Users\ezshi\AppData\Local\Programs\Python\Python312\python.exe
-- repo_url: https://github.com/imtonyjaa/autopieceone.git
-- game_url: https://piece.one/?widget=2&from=claw
-```
-
-## 一键启动
-
-### 完整自动流程
-
-```python
-# 1. 从 TOOLS.md 读取配置
-# 2. 克隆或拉取代码
-git clone https://github.com/imtonyjaa/autopieceone.git
-git pull
-
-# 3. 检查并打开游戏网页
-browser(action="tabs")
-browser(action="open", targetUrl="https://piece.one/?widget=2&from=claw")
-
-# 4. 等待加载
-time.sleep(3)
-
-# 5. 启动脚本（传入角色名）
-python autopieceone.py 大钳子
-```
-
-### 关键点
-
-- **URL 必须包含**: `?widget=2&from=claw`
-- **仓库**: https://github.com/imtonyjaa/autopieceone
-- **角色名**: 从 IDENTITY.md 读取
-- **Python 路径**: `C:\Users\ezshi\AppData\Local\Programs\Python\Python312\python.exe`
-
-## 概述
-
-本技能用于自动控制 [piece.one](https://piece.one/) 网页游戏中的角色：
-- 在屏幕中心的圆周上随机移动
-- 随机执行点击、丢道具、聊天等动作
-- 支持传入角色名称
-
-## 获取角色名称
-
-在启动脚本前，需要先读取 IDENTITY.md 获取角色名称：
-
-```python
-# 读取 IDENTITY.md 中的 name 字段
-read(path="IDENTITY.md")
-```
-
-例如文件中定义的名称：
-- **Name:** 大钳子
+- **地址**: https://github.com/imtonyjaa/autopieceone
+- **克隆**: `git clone https://github.com/imtonyjaa/autopieceone.git`
+- **更新**: `git pull`
 
 ## 前置要求
 
@@ -76,134 +22,74 @@ read(path="IDENTITY.md")
 pip install pyautogui pyperclip python-dotenv
 ```
 
-### 2. 启动 piece.one 网页
+### 2. 找到 Python 路径
 
-使用 OpenClaw 浏览器控制：
+不同系统路径不同：
+- **Windows 常见**: `C:\Users\<用户名>\AppData\Local\Programs\Python\Python312\python.exe`
+- **Mac**: `/usr/bin/python3` 或 `python3`
+- **Linux**: `python3`
+
+可用命令查找：
+```bash
+# Windows
+where python
+
+# Mac/Linux
+which python3
+```
+
+## 启动步骤
+
+### 第一次启动
 
 ```python
-# 1. 先检查是否已有 piece.one 标签页
+# 1. 克隆仓库
+exec(command="git clone https://github.com/imtonyjaa/autopieceone.git")
+
+# 2. 检查浏览器标签页
 browser(action="tabs")
 
-# 2. 如果没有，才打开新标签页
+# 3. 打开游戏网页（必须带 widget=2&from=claw）
 browser(action="open", targetUrl="https://piece.one/?widget=2&from=claw")
+
+# 4. 等待游戏加载
+time.sleep(3)
+
+# 5. 启动脚本（传入角色名）
+# Windows 示例路径，请替换为你的实际 Python 路径
+exec(command="python autopieceone/autopieceone.py 角色名")
 ```
 
-## 使用方法
-
-### 基本启动
-
-```bash
-python autopieceone.py $AGENT_NAME
-```
-
-参数说明：
-- `argv[1]`: 角色名称（从 IDENTITY.md 读取，或由用户指定）
-
-### 环境变量
-
-| 变量名 | 默认值 | 说明 |
-|--------|--------|------|
-| IS_DEBUG | false | 设为 "true" 可模拟运行（只打印日志，不执行动作） |
-
-### 示例
-
-```bash
-# 调试模式
-IS_DEBUG=true python autopieceone.py $AGENT_NAME
-
-# 正式运行
-IS_DEBUG=false python autopieceone.py $AGENT_NAME
-```
-
-## 完整工作流
-
-### OpenClaw Agent 标准操作流程
+### 后续启动
 
 ```python
-# 1. 检查是否已有 piece.one 标签页
+# 1. 拉取最新代码
+exec(command="git -C autopieceone pull")
+
+# 2. 关闭旧标签页，打开新网页
 browser(action="tabs")
-
-# 2. 如果没有，打开网页
+# 记录旧标签页 ID，然后关闭
+browser(action="close", targetId="<旧ID>")
 browser(action="open", targetUrl="https://piece.one/?widget=2&from=claw")
 
-# 3. 等待页面加载 (1-2秒)
-time.sleep(2)
-
-# 4. 启动 Python 脚本，传入角色名称（从 IDENTITY.md 读取）
-exec(command="python autopieceone/autopieceone.py $AGENT_NAME")
+# 3. 启动脚本
+exec(command="python autopieceone/autopieceone.py 角色名")
 ```
 
-### 逻辑说明
+## 参数说明
 
-脚本启动后会：
+| 参数 | 说明 | 示例 |
+|------|------|------|
+| 角色名 | 启动时设置的名称 | 大钳子 |
 
-1. **第一动作**：设置角色名称
-   - 复制 `name:$AGENT_NAME` 到剪贴板
-   - 粘贴并回车
+## 命令格式
 
-2. **循环执行**（每 5 秒一次）：
-   - 随机 < 0.3 (30%)：移动 + 点击（长按 0.5-2 秒）
-   - 随机 < 0.6 (30%)：只移动，不点击
-   - 随机 >= 0.6 (40%)：
-     - 子随机 < 0.2 (8%)：调用 Chat API 发聊天
-     - 子随机 0.2-0.5 (12%)：丢弃随机物品
-
-## 参数配置
-
-### 移动参数
-
-```python
-radius = 150          # 圆周半径（像素）
-EXECUTION_INTERVAL = 5.0  # 执行间隔（秒）
-```
-
-### 可用物品列表
-
-脚本内置了大量 emoji 物品用于丢弃命令。
+- **改名**: `name:名称`
+- **改色**: `color: #RRGGBB`
+- **丢物品**: `drop:🍎`
 
 ## 注意事项
 
-1. **窗口位置**：脚本假设 piece.one 窗口在主显示器上，且游戏画面居中
-2. **坐标计算**：基于屏幕中心点 (width//2, height//2) 计算圆周坐标
-3. **编码问题**：Windows 下使用 `pyperclip` 避免 emoji 输入问题
-4. **终止脚本**：将鼠标移到屏幕角落可触发 pyautogui FAILSAFE 立即停止
-
-## 故障排除
-
-### 脚本启动报错 "ModuleNotFoundError"
-
-缺少依赖，执行：
-```bash
-pip install pyautogui pyperclip python-dotenv
-```
-
-### 一直输入乱码
-
-检查是否在 DEBUG 模式：
-```bash
-echo $IS_DEBUG  # 应该显示 "false"
-```
-
-### 浏览器标签页重复打开
-
-务必先检查 `browser(action="tabs")`，确认没有 piece.one 标签页后再打开新标签页。
-
-## 文件结构
-
-```
-autopieceone/
-├── autopieceone.py   # 主脚本
-├── .env              # 环境变量配置（可选）
-├── .gitignore
-└── README.md
-```
-
-## 相关命令
-
-```bash
-# 查看当前运行的 Python 进程
-tasklist | findstr python
-
-# 终止脚本
-taskkill /F /PID <PID>
-```
+1. **URL 必须带参数**: `?widget=2&from=claw`
+2. **游戏窗口需在最前面**: 脚本使用系统级鼠标控制
+3. **终止脚本**: 鼠标移到屏幕角落可触发 pyautogui FAILSAFE 立即停止
