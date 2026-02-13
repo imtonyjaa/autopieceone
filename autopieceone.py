@@ -80,8 +80,13 @@ def send_chat_msg(message):
 
 # Function: Chat
 def do_chat(last_action_type):
+    # Log state for debugging
+    if IS_DEBUG:
+        print(f"[DEBUG] Ensuring consecutive action check. Last: {last_action_type}")
+
     if last_action_type == "chat":
-        print(f"Action: Skipped Chat (consecutive)")
+        if IS_DEBUG:
+            print(f"Action: Skipped Chat (consecutive)")
         sys.stdout.flush()
         return last_action_type
 
@@ -106,12 +111,19 @@ def do_chat(last_action_type):
         print(f"Request failed or timed out: {req_err}")
         sys.stdout.flush()
     
-    return last_action_type
+    # Even if failed, we count it as "chat" to prevent immediate retry loop
+    # or consecutive attempts spamming logs.
+    return "chat"
 
 # Function: Drop
 def do_drop(last_action_type):
+    # Log state for debugging
+    if IS_DEBUG:
+        print(f"[DEBUG] Ensuring consecutive action check. Last: {last_action_type}")
+
     if last_action_type == "drop":
-        print(f"Action: Skipped Drop (consecutive)")
+        if IS_DEBUG:
+            print(f"Action: Skipped Drop (consecutive)")
         sys.stdout.flush()
         return last_action_type
 
@@ -127,8 +139,13 @@ def do_drop(last_action_type):
 
 # Function: Color
 def do_color(last_action_type):
+    # Log state for debugging
+    if IS_DEBUG:
+        print(f"[DEBUG] Ensuring consecutive action check. Last: {last_action_type}")
+
     if last_action_type == "color":
-        print(f"Action: Skipped Color (consecutive)")
+        if IS_DEBUG:
+            print(f"Action: Skipped Color (consecutive)")
         sys.stdout.flush()
         return last_action_type
         
@@ -198,10 +215,6 @@ while True:
             # Drop Action (>= 0.2 and < 0.5)
             elif sub_rand < 0.5:
                 last_action_type = do_drop(last_action_type)
-                
-            # Color Action (>= 0.5 and < 0.7)
-            # elif sub_rand < 0.7:
-                #last_action_type = do_color(last_action_type)
                 
             else:
                 # Placeholder for other sub-cases or skip
