@@ -37,20 +37,28 @@ radius = 150
 print(f"Physical mover started. Screen: {width}x{height}. Center: ({center_x}, {center_y}), Name: {NAME}")
 sys.stdout.flush()
 
-# First action: set name
-print(f"Action: Setting name to {NAME}")
+# First action
 sys.stdout.flush()
 if not IS_DEBUG:
     pyautogui.press('space')
     pyperclip.copy(f"name:{NAME}")
     pyautogui.hotkey('ctrl', 'v')
     pyautogui.press('enter')
-    time.sleep(1)
+else:
+    print(f"Action: Setting name to {NAME}")
+    sys.stdout.flush()
+
+time.sleep(1)
+
+if not IS_DEBUG:
     pyautogui.press('space')
     pyperclip.copy(f"color:#BB2521")
     pyautogui.hotkey('ctrl', 'v')
     pyautogui.press('enter')
     time.sleep(1)
+else:
+    print(f"Action: Setting color to #BB2521")
+    sys.stdout.flush()
 
 # Helper: Send Message to Chat
 def send_chat_msg(message):
@@ -192,7 +200,7 @@ while True:
                 last_action_type = do_drop(last_action_type)
                 
             # Color Action (>= 0.5 and < 0.7)
-            elif sub_rand < 0.7:
+            # elif sub_rand < 0.7:
                 #last_action_type = do_color(last_action_type)
                 
             else:
