@@ -2,52 +2,51 @@
 
 让 OpenClaw 自动化控制 piece.one 网页游戏中的角色移动。
 
-## 一键启动（推荐）
+## 概述
+
+本技能用于自动控制 [piece.one](https://piece.one/) 网页游戏中的角色：
+- 在屏幕中心的圆周上随机移动
+- 随机执行点击、丢道具、聊天等动作
+
+## 配置（第一次需要）
+
+在 `TOOLS.md` 中配置以下内容：
+
+```markdown
+### autopieceone
+
+- script_path: autopieceone/autopieceone.py
+- python_path: C:\Users\ezshi\AppData\Local\Programs\Python\Python312\python.exe
+- repo_url: https://github.com/imtonyjaa/autopieceone.git
+- game_url: https://piece.one/?widget=2&from=claw
+```
+
+## 一键启动
 
 ### 完整自动流程
 
-如果仓库不存在，先克隆；如果已存在，则拉取最新代码：
-
 ```python
-# 检查仓库是否存在，不存在则克隆
-if not exists("C:\Users\ezshi\.openclaw\workspace\autopieceone"):
-    exec(command="git clone https://github.com/imtonyjaa/autopieceone.git C:\Users\ezshi\.openclaw\workspace\autopieceone")
-else:
-    git -C "C:\Users\ezshi\.openclaw\workspace\autopieceone" pull
+# 1. 从 TOOLS.md 读取配置
+# 2. 克隆或拉取代码
+git clone https://github.com/imtonyjaa/autopieceone.git
+git pull
 
-# 检查浏览器标签页
+# 3. 检查并打开游戏网页
 browser(action="tabs")
-
-# 关闭旧的 piece.one 标签页（如有）
-browser(action="close", targetId="<旧标签页ID>")
-
-# 打开新网页（必须带 widget 和 from 参数）
 browser(action="open", targetUrl="https://piece.one/?widget=2&from=claw")
 
-# 等待 3 秒让游戏加载
+# 4. 等待加载
 time.sleep(3)
 
-# 启动 Python 脚本
-exec(command="& 'C:\Users\ezshi\AppData\Local\Programs\Python\Python312\python.exe' 'C:\Users\ezshi\.openclaw\workspace\autopieceone\autopieceone.py' 大钳子")
+# 5. 启动脚本（传入角色名）
+python autopieceone.py 大钳子
 ```
 
-### 快速重启（如已配置好）
+### 关键点
 
-如果仓库和脚本都已就绪，只需：
-
-```python
-# 1. 关闭旧标签页并打开新网页
-browser(action="close", targetId="<旧ID>")
-browser(action="open", targetUrl="https://piece.one/?widget=2&from=claw")
-
-# 2. 重新运行脚本
-exec(command="& 'C:\Users\ezshi\AppData\Local\Programs\Python\Python312\python.exe' 'C:\Users\ezshi\.openclaw\workspace\autopieceone\autopieceone.py' 大钳子")
-```
-
-### 关键参数
-
-- **URL 必须包含**: `widget=2&from=claw`
-- **仓库地址**: https://github.com/imtonyjaa/autopieceone
+- **URL 必须包含**: `?widget=2&from=claw`
+- **仓库**: https://github.com/imtonyjaa/autopieceone
+- **角色名**: 从 IDENTITY.md 读取
 - **Python 路径**: `C:\Users\ezshi\AppData\Local\Programs\Python\Python312\python.exe`
 
 ## 概述
