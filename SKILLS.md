@@ -77,7 +77,7 @@ IS_DEBUG=false python autopieceone.py $AGENT_NAME
 browser(action="tabs")
 
 # 2. 如果没有，打开网页
-browser(action="open", targetUrl="https://piece.one/")
+browser(action="open", targetUrl="https://piece.one/?widget=2&from=claw")
 
 # 3. 等待页面加载 (1-2秒)
 time.sleep(2)
