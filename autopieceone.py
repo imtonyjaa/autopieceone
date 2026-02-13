@@ -52,6 +52,86 @@ if not IS_DEBUG:
     pyautogui.press('enter')
     time.sleep(1)
 
+# Helper: Send Message to Chat
+def send_chat_msg(message):
+    if IS_DEBUG:
+        print(f"[DEBUG] Would send to chat: {message}")
+        return
+
+    # Press space to open chat
+    pyautogui.press('space')
+    time.sleep(1)
+
+    # Use clipboard to paste
+    pyperclip.copy(str(message))
+    pyautogui.hotkey('ctrl', 'v')
+
+    # Press enter
+    pyautogui.press('enter')
+    time.sleep(1)
+
+# Function: Chat
+def do_chat(last_action_type):
+    if last_action_type == "chat":
+        print(f"Action: Skipped Chat (consecutive)")
+        sys.stdout.flush()
+        return last_action_type
+
+    print(f"Action: Chat Input")
+    sys.stdout.flush()
+    try:
+        # Request with 5s timeout and User-Agent to avoid 403
+        req = urllib.request.Request(
+            "https://api.piece.one/chat.php", 
+            headers={'User-Agent': 'Mozilla/5.0'}
+        )
+        with urllib.request.urlopen(req, timeout=5) as response:
+            if response.status == 200:
+                content = response.read().decode('utf-8')
+                data_json = json.loads(content)
+                chat_data = data_json.get('data', '')
+                
+                if chat_data:
+                    send_chat_msg(chat_data)
+                    return "chat"
+    except Exception as req_err:
+        print(f"Request failed or timed out: {req_err}")
+        sys.stdout.flush()
+    
+    return last_action_type
+
+# Function: Drop
+def do_drop(last_action_type):
+    if last_action_type == "drop":
+        print(f"Action: Skipped Drop (consecutive)")
+        sys.stdout.flush()
+        return last_action_type
+
+    print(f"Action: Drop Item")
+    sys.stdout.flush()
+    
+    # Pick random item
+    drop_item = random.choice(AVAILABLE_DROPS)
+    message = f"drop:{drop_item}"
+    
+    send_chat_msg(message)
+    return "drop"
+
+# Function: Color
+def do_color(last_action_type):
+    if last_action_type == "color":
+        print(f"Action: Skipped Color (consecutive)")
+        sys.stdout.flush()
+        return last_action_type
+        
+    color_hex = f"#{random.randint(0, 0xFFFFFF):06x}"
+    print(f"Action: Color Command -> {color_hex}")
+    sys.stdout.flush()
+    
+    message = f"color: {color_hex}"
+    send_chat_msg(message)
+    return "color"
+
 # Track last action to prevent consecutive same actions
 last_action_type = None
 
@@ -99,119 +179,24 @@ while True:
                 # Move mouse
                 pyautogui.moveTo(tx, ty, duration=0.5)
             
-        # 3. Logic if random value >= 0.6: Chat API Logic
+        # 3. Logic if random value >= 0.6: Special Actions
         else:
             sub_rand = random.random()
-            if sub_rand < 0.2:
-                # Check consecutive action
-                if last_action_type == "chat":
-                    print(f"Action: Skipped Chat (consecutive) ({rand_val:.2f}, sub: {sub_rand:.2f})")
-                    sys.stdout.flush()
-                    last_action_type = None  # Reset or leave as is? Let's leave as is so it doesn't loop
-                    # If user wants to skip, we just do nothing and wait
-                    time.sleep(0.5)
-                else:
-                    print(f"Action: Chat Input ({rand_val:.2f}, sub: {sub_rand:.2f})")
-                    sys.stdout.flush()
-                    
-                    try:
-                        # Request with 5s timeout and User-Agent to avoid 403
-                        req = urllib.request.Request(
-                            "https://api.piece.one/chat.php", 
-                            headers={'User-Agent': 'Mozilla/5.0'}
-                        )
-                        with urllib.request.urlopen(req, timeout=5) as response:
-                            if response.status == 200:
-                                content = response.read().decode('utf-8')
-                                data_json = json.loads(content)
-                                chat_data = data_json.get('data', '')
-                                
-                                if chat_data:
-                                    if IS_DEBUG:
-                                        print(f"[DEBUG] Got chat data: '{chat_data}'. Would type it.")
-                                        last_action_type = "chat"
-                                    else:
-                                        # Press space to open chat
-                                        pyautogui.press('space')
-                                        time.sleep(1)
-                                        
-                                        # Use clipboard to paste (avoids emoji issues)
-                                        pyperclip.copy(str(chat_data))
-                                        pyautogui.hotkey('ctrl', 'v')
-                                        
-                                        # Press enter
-                                        pyautogui.press('enter')
-                                        
-                                        # Update last action
-                                        last_action_type = "chat"
-                    except Exception as req_err:
-                        print(f"Request failed or timed out: {req_err}")
-                        sys.stdout.flush()
             
-            # Sub-logic if random value < 0.5 (and >= 0.2): Drop Item
+            # Chat Action (< 0.2)
+            if sub_rand < 0.2:
+                last_action_type = do_chat(last_action_type)
+            
+            # Drop Action (>= 0.2 and < 0.5)
             elif sub_rand < 0.5:
-                # Check consecutive action
-                if last_action_type == "drop":
-                    print(f"Action: Skipped Drop (consecutive) ({rand_val:.2f}, sub: {sub_rand:.2f})")
-                    sys.stdout.flush()
-                    time.sleep(0.5)
-                else:
-                    print(f"Action: Drop Item ({rand_val:.2f}, sub: {sub_rand:.2f})")
-                    sys.stdout.flush()
-                    
-                    # Pick random item first to log it
-                    drop_item = random.choice(AVAILABLE_DROPS)
-                    
-                    if IS_DEBUG:
-                        print(f"[DEBUG] Would drop item: {drop_item}")
-                        last_action_type = "drop"
-                    else:
-                        # Press space
-                        pyautogui.press('space')
-                        time.sleep(1)
-                        
-                        # Use clipboard to paste item emoji
-                        pyperclip.copy("drop:" + drop_item)
-                        pyautogui.hotkey('ctrl', 'v')
-                        
-                        # Press enter
-                        pyautogui.press('enter')
-                        
-                        # Update last action
-                        last_action_type = "drop"
+                last_action_type = do_drop(last_action_type)
                 
-            # Sub-logic if random value < 0.7 (and >= 0.5): Color Command
+            # Color Action (>= 0.5 and < 0.7)
             elif sub_rand < 0.7:
-                # Check consecutive action
-                if last_action_type == "color":
-                    print(f"Action: Skipped Color (consecutive) ({rand_val:.2f}, sub: {sub_rand:.2f})")
-                    sys.stdout.flush()
-                    time.sleep(0.5)
-                else:
-                    color_hex = f"#{random.randint(0, 0xFFFFFF):06x}"
-                    print(f"Action: Color Command ({rand_val:.2f}, sub: {sub_rand:.2f}) -> {color_hex}")
-                    sys.stdout.flush()
-                    
-                    if IS_DEBUG:
-                        print(f"[DEBUG] Would send color: {color_hex}")
-                        last_action_type = "color"
-                    else:
-                        # Press space
-                        pyautogui.press('space')
-                        time.sleep(1)
-                        
-                        # Use clipboard to paste color command
-                        pyperclip.copy(f"color: {color_hex}")
-                        pyautogui.hotkey('ctrl', 'v')
-                        
-                        # Press enter
-                        pyautogui.press('enter')
-                        
-                        # Update last action
-                        last_action_type = "color"
+                #last_action_type = do_color(last_action_type)
                 
             else:
-                # Placeholder for other sub-cases in >= 0.6
+                # Placeholder for other sub-cases or skip
                 print(f"Action: Skipped > 0.6 ({rand_val:.2f}, sub: {sub_rand:.2f})")
                 sys.stdout.flush()
                 # Default wait
@@ -223,3 +208,4 @@ while True:
         print(f"Stopped: {e}")
         sys.stdout.flush()
         break
+
