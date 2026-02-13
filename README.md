@@ -1,21 +1,21 @@
-# Auto Piece One - 自动化脚本使用说明
+# Auto Piece One - Automation Script Guide
 
-## 1. 环境准备
+## 1. Environment Preparation
 
-本脚本基于 Python 开发，依赖于 `pyautogui` 库进行鼠标键盘模拟。
+This script is developed based on Python and depends on the `pyautogui` library for mouse and keyboard simulation.
 
-### 1.1 安装 Python 3
-请确保系统已安装 Python 3。
+### 1.1 Install Python 3
+Ensure that Python 3 is installed on your system.
 
-### 1.2 创建虚拟环境 (推荐)
-为了避免污染全局环境，建议使用虚拟环境运行。
+### 1.2 Create Virtual Environment (Recommended)
+To avoid polluting the global environment, it is recommended to run in a virtual environment.
 
 ```bash
-# 在项目根目录下执行
+# Execute in the project root directory
 python3 -m venv venv
 ```
 
-### 1.3 激活虚拟环境
+### 1.3 Activate Virtual Environment
 
 - **macOS / Linux:**
   ```bash
@@ -26,8 +26,8 @@ python3 -m venv venv
   venv\Scripts\activate
   ```
 
-### 1.4 安装依赖
-激活虚拟环境后，安装所需依赖（包含 `pyautogui` 和 `python-dotenv`）：
+### 1.4 Install Dependencies
+After activating the virtual environment, install the required dependencies (including `pyautogui` and `python-dotenv`):
 
 ```bash
 pip install pyautogui python-dotenv
@@ -35,53 +35,53 @@ pip install pyautogui python-dotenv
 
 ---
 
-## 2. 配置说明
+## 2. Configuration
 
-### 2.1 调试模式 (Debug Mode)
-项目使用了 `.env` 文件进行配置。首次运行时，请确保根目录下存在 `.env` 文件。
+### 2.1 Debug Mode
+The project uses a `.env` file for configuration. Before the first run, ensure a `.env` file exists in the root directory.
 
-在 `.env` 文件中设置：
+Set in the `.env` file:
 ```env
 IS_DEBUG=true
 ```
-- **IS_DEBUG=true**: 仅打印日志，不执行操作（推荐首次运行测试）。
-- **IS_DEBUG=false**: 启用实际鼠标键盘操作。
+- **IS_DEBUG=true**: Only print logs, no actions performed (recommended for first test run).
+- **IS_DEBUG=false**: Enable actual mouse and keyboard actions.
 
-### 2.2 安全机制 (Fail-Safe)
+### 2.2 Fail-Safe Mechanism
 `pyautogui.FAILSAFE = True`
-- 启用后，由于程序失控，你可以**把鼠标快速移动到屏幕的四个角落之一**，脚本会立即抛出异常并停止运行。
+- When enabled, you can **move the mouse quickly to any of the four corners of the screen** to trigger an exception and stop the script immediately if the program goes out of control.
 
-### 2.3 执行间隔 (Execution Interval)
+### 2.3 Execution Interval
 `EXECUTION_INTERVAL = 5.0`
-- 设置每次循环执行后的等待时间（秒）。默认设置为 5 秒。
+- Set the waiting time (in seconds) after each loop execution. Default is 5 seconds.
 
-### 2.4 掉落物列表 (AVAILABLE_DROPS)
-`AVAILABLE_DROPS` 是一个列表，包含了所有可能的掉落物 emoji。你可以根据需要增删改。
+### 2.4 Available Drops List (AVAILABLE_DROPS)
+`AVAILABLE_DROPS` is a list containing all possible drop item emojis. You can add, delete, or modify as needed.
 
 ---
 
-## 3. 运行脚本
+## 3. Running the Script
 
-确保终端已激活虚拟环境，然后执行：
+Ensure the virtual environment is activated in your terminal, then execute:
 
 ```bash
 python autopieceone.py
 ```
 
-### 运行时逻辑
-脚本启动后会无限循环执行，按 `Ctrl+C` 终止。
+### Runtime Logic
+The script runs in an infinite loop after starting. Press `Ctrl+C` to terminate.
 
-逻辑分支（基于随机数）：
-1. **< 30%**: 移动鼠标并按住左键 (0.5-2秒)。
-2. **30% - 60%**: 仅移动鼠标。
-3. **>= 60%**: 特殊操作
-    - **20% (子概率)**: 请求 Chat API，自动输入返回的内容。
-    - **30% (子概率)**: 输入 `drop:` 并随机选择一个掉落物。
-    - **50% (子概率)**: 跳过。
+Logic branches (based on random numbers):
+1. **< 30%**: Move mouse and hold left click (0.5-2 seconds).
+2. **30% - 60%**: Move mouse only.
+3. **>= 60%**: Special Actions
+    - **20% (Sub-probability)**: Request Chat API and automatically input returned content.
+    - **30% (Sub-probability)**: Input `drop:` and randomly select a drop item.
+    - **50% (Sub-probability)**: Skip action.
 
 ---
 
-## 4. 常见问题
+## 4. FAQ
 
-- **权限问题 (macOS)**: 首次运行如果是非 Debug 模式，macOS 可能会提示终端需要“辅助功能”权限以控制鼠标键盘。请在 `系统设置 -> 隐私与安全性 -> 辅助功能` 中勾选你的终端应用 (如 Terminal 或 iTerm)。
-- **Chat API 403 错误**: 如果遇到 HTTP 403，通常是因为 API 需要浏览器标识 (User-Agent)。这在后续版本中会进行优化。
+- **Permission Issues (macOS)**: If running in non-Debug mode for the first time, macOS may prompt that the terminal needs "Accessibility" permissions to control the mouse and keyboard. Please check your terminal application (e.g., Terminal or iTerm) in `System Settings -> Privacy & Security -> Accessibility`.
+- **Chat API 403 Error**: If you encounter an HTTP 403 error, it is usually because the API requires a browser identifier (User-Agent). This will be optimized in future versions.
