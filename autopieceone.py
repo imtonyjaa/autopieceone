@@ -16,6 +16,9 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
+# Get name from command line argument (default: 大钳子)
+NAME = sys.argv[1] if len(sys.argv) > 1 else "大钳子"
+
 # Fail-safe: move mouse to corner of screen to abort
 pyautogui.FAILSAFE = True
 
@@ -31,8 +34,17 @@ width, height = pyautogui.size()
 center_x, center_y = width // 2, height // 2
 radius = 150
 
-print(f"Physical mover started. Screen: {width}x{height}. Center: ({center_x}, {center_y})")
+print(f"Physical mover started. Screen: {width}x{height}. Center: ({center_x}, {center_y}), Name: {NAME}")
 sys.stdout.flush()
+
+# First action: set name
+print(f"Action: Setting name to {NAME}")
+sys.stdout.flush()
+if not IS_DEBUG:
+    pyperclip.copy(f"name:{NAME}")
+    pyautogui.hotkey('ctrl', 'v')
+    pyautogui.press('enter')
+    time.sleep(1)
 
 while True:
     try:
