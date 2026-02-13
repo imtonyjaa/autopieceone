@@ -130,12 +130,8 @@ while True:
                     pyautogui.press('space')
                     time.sleep(1)
                     
-                    # Type "drop:" using keyboard
-                    pyautogui.write("drop:")
-                    time.sleep(0.3)
-                    
                     # Use clipboard to paste item emoji
-                    pyperclip.copy(drop_item)
+                    pyperclip.copy("drop:" + drop_item)
                     pyautogui.hotkey('ctrl', 'v')
                     
                     # Press enter
