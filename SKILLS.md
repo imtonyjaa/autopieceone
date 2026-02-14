@@ -85,10 +85,7 @@ browser(action="tabs")
 browser(action="close", targetId="<OldID>")
 browser(action="open", targetUrl="https://piece.one/?widget=2&from=claw")
 
-# 3. Fullscreen browser (press F11)
-exec(command='python -c "import pyautogui; pyautogui.press(\"f11\")"')
-
-# 4. Start script
+# 3. Start script (no F11 needed - stays fullscreen from first launch)
 exec(command="python autopieceone/autopieceone.py CharacterName")
 ```
 
