@@ -11,10 +11,21 @@ import random
 import urllib.request
 import json
 import os
+import atexit
 from dotenv import load_dotenv
 
 # Load environment variables
 load_dotenv()
+
+# Cleanup: release mouse button on exit
+def cleanup():
+    try:
+        pyautogui.mouseUp(button='left')
+        print("Cleanup: mouse button released")
+    except:
+        pass
+
+atexit.register(cleanup)
 
 # Get name from command line argument (default: 大钳子)
 NAME = sys.argv[1] if len(sys.argv) > 1 else "大钳子"
