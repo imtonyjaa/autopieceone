@@ -85,7 +85,10 @@ browser(action="tabs")
 browser(action="close", targetId="<OldID>")
 browser(action="open", targetUrl="https://piece.one/?widget=2&from=claw")
 
-# 3. Start script (no F11 needed - stays fullscreen from first launch)
+# 3. Fullscreen browser (press F11)
+exec(command="python fullscreen.py")
+
+# 4. Start script (no F11 needed - stays fullscreen from first launch)
 exec(command="python autopieceone/autopieceone.py CharacterName")
 ```
 
