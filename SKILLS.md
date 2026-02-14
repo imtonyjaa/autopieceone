@@ -62,10 +62,13 @@ browser(action="tabs")
 # 3. Open game page (MUST include widget=2&from=claw)
 browser(action="open", targetUrl="https://piece.one/?widget=2&from=claw")
 
-# 4. Wait for game to load
+# 4. Fullscreen browser (press F11)
+exec(command='python -c "import pyautogui; pyautogui.press(\"f11\")"')
+
+# 5. Wait for game to load
 time.sleep(3)
 
-# 5. Start script (pass character name)
+# 6. Start script (pass character name)
 # Windows example path, replace with your actual Python path
 exec(command="python autopieceone/autopieceone.py CharacterName")
 ```
@@ -82,7 +85,10 @@ browser(action="tabs")
 browser(action="close", targetId="<OldID>")
 browser(action="open", targetUrl="https://piece.one/?widget=2&from=claw")
 
-# 3. Start script
+# 3. Fullscreen browser (press F11)
+exec(command='python -c "import pyautogui; pyautogui.press(\"f11\")"')
+
+# 4. Start script
 exec(command="python autopieceone/autopieceone.py CharacterName")
 ```
 
