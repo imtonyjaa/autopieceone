@@ -25,6 +25,9 @@ pyautogui.FAILSAFE = True
 # Debug mode: If True, simulate actions with logs instead of executing
 IS_DEBUG = os.getenv("IS_DEBUG", "false").lower() == "true"
 
+# Stop flag file - if this exists, script will not auto-restart
+STOP_FLAG_FILE = "stop.flag"
+
 AVAILABLE_DROPS = ['🍔','🍕','🍦','🍩','🍪','🍟','🎂','🍰','🧀','🍖','🍗','🥩','🍿','🍘','🍙','🍢','🍣','🍤','🥮','🥟','🧁','🍫','🍬','🍆','🥔','🥕','🌽','🌶️','🫑','🥒','🥬','🥦','🧄','🧅','🥜','🫘','🌰','🫛','🍠','🍇','🍈','🍉','🍊','🍋','🍋‍🟩','🍌','🍍','🥭','🍎','🍏','🍐','🍑','🍒','🍓','🫐','🥝','🍅','🫒','🥑','🍞','🥐','🥖','🥨','🥯','🥞','🧇','🥪','🌭','🌮','🌯','🫔','🥛','☕️','🍵','🍶','🍷','🍸️','🍹','🍺','🥃','🥤','🧋','🧃','🧉','⚽️','🏀','🥎','🎾','🏐','⚾️','🏈','🏉','🎱','🎲','🃏','🪨','🕸','🎈','🎉','🎆','🎇','🧨','💣','🎨','🎭️','🧊','💩','🕳️','💊','🧲','🍄','🎃','🐵','🐶','🦊','🐱','🦁','🐯','🐷','🐭','🐹','🐰','🐻','🐨','🐼','🐸','🐲','🐽','🌚','🌝','🌞','🤡','🤖','💀','👹','👻','🐮','🧢','👓','🕶️','🎩','🪖','🤿','🐽','🌪️','🪺']
 
 # Global execution interval in seconds
@@ -86,10 +89,6 @@ def send_chat_msg(message):
 
 # Function: Chat
 def do_chat(last_action_type):
-    # Log state for debugging
-    if IS_DEBUG:
-        print(f"[DEBUG] Ensuring consecutive action check. Last: {last_action_type}")
-
     if last_action_type == "chat":
         if IS_DEBUG:
             print(f"Action: Skipped Chat (consecutive)")
@@ -99,7 +98,7 @@ def do_chat(last_action_type):
     print(f"Action: Chat Input")
     sys.stdout.flush()
     try:
-        # Request with 5s timeout and User-Agent to avoid 403
+        # Request with 180s timeout
         req = urllib.request.Request(
             "https://api.piece.one/chat.php", 
             headers={'User-Agent': 'Mozilla/5.0'}
@@ -117,16 +116,10 @@ def do_chat(last_action_type):
         print(f"Request failed or timed out: {req_err}")
         sys.stdout.flush()
     
-    # Even if failed, we count it as "chat" to prevent immediate retry loop
-    # or consecutive attempts spamming logs.
     return "chat"
 
 # Function: Drop
 def do_drop(last_action_type):
-    # Log state for debugging
-    if IS_DEBUG:
-        print(f"[DEBUG] Ensuring consecutive action check. Last: {last_action_type}")
-
     if last_action_type == "drop":
         if IS_DEBUG:
             print(f"Action: Skipped Drop (consecutive)")
@@ -136,7 +129,6 @@ def do_drop(last_action_type):
     print(f"Action: Drop Item")
     sys.stdout.flush()
     
-    # Pick random item
     drop_item = random.choice(AVAILABLE_DROPS)
     message = f"drop:{drop_item}"
     
@@ -145,10 +137,6 @@ def do_drop(last_action_type):
 
 # Function: Color
 def do_color(last_action_type):
-    # Log state for debugging
-    if IS_DEBUG:
-        print(f"[DEBUG] Ensuring consecutive action check. Last: {last_action_type}")
-
     if last_action_type == "color":
         if IS_DEBUG:
             print(f"Action: Skipped Color (consecutive)")
@@ -163,85 +151,99 @@ def do_color(last_action_type):
     send_chat_msg(message)
     return "color"
 
-# Track last action to prevent consecutive same actions
-last_action_type = None
-
-while True:
-    try:
-        rand_val = random.random()
+# Main execution loop with auto-restart
+def main_loop():
+    global last_refresh_time
+    
+    last_action_type = None
+    
+    while True:
+        # Check stop flag periodically
+        if os.path.exists(STOP_FLAG_FILE):
+            print("Stop flag detected. Exiting...")
+            sys.stdout.flush()
+            os.remove(STOP_FLAG_FILE)
+            return
         
-        # 1. Logic if random value < 0.3: Move and Click (0.5s - 2s)
-        if rand_val < 0.3:
-            angle = random.uniform(0, 2 * math.pi)
-            tx = center_x + radius * math.cos(angle)
-            ty = center_y + radius * math.sin(angle)
+        try:
+            rand_val = random.random()
             
-            print(f"Action: Move & Click ({rand_val:.2f})")
-            sys.stdout.flush()
-            
-            if IS_DEBUG:
-                print(f"[DEBUG] Would move to ({tx:.0f}, {ty:.0f}), hold left click.")
+            # 1. Logic if random value < 0.3: Move and Click (0.5s - 2s)
+            if rand_val < 0.3:
+                angle = random.uniform(0, 2 * math.pi)
+                tx = center_x + radius * math.cos(angle)
+                ty = center_y + radius * math.sin(angle)
                 
-                # Simulate hold duration in debug? Maybe just log duration.
-                hold_time = random.uniform(0.5, 2.0)
-                print(f"[DEBUG] maintain click for {hold_time:.2f}s")
-            else:
-                # Move mouse
-                pyautogui.moveTo(tx, ty, duration=0.5)
-                
-                # Click and hold
-                pyautogui.mouseDown(button='left')
-                hold_time = random.uniform(0.5, 2.0)
-                time.sleep(hold_time)
-                pyautogui.mouseUp(button='left')
-            
-        # 2. Logic if random value < 0.6: Only Move
-        elif rand_val < 0.6:
-            angle = random.uniform(0, 2 * math.pi)
-            tx = center_x + radius * math.cos(angle)
-            ty = center_y + radius * math.sin(angle)
-            
-            print(f"Action: Move Only ({rand_val:.2f})")
-            sys.stdout.flush()
-            
-            if IS_DEBUG:
-                print(f"[DEBUG] Would move to ({tx:.0f}, {ty:.0f}) without clicking.")
-            else:
-                # Move mouse
-                pyautogui.moveTo(tx, ty, duration=0.5)
-            
-        # 3. Logic if random value >= 0.6: Special Actions
-        else:
-            sub_rand = random.random()
-            
-            # Chat Action (< 0.2)
-            if sub_rand < 0.2:
-                last_action_type = do_chat(last_action_type)
-            
-            # Drop Action (>= 0.2 and < 0.5)
-            elif sub_rand < 0.5:
-                last_action_type = do_drop(last_action_type)
-                
-            else:
-                # Placeholder for other sub-cases or skip
-                print(f"Action: Skipped > 0.6 ({rand_val:.2f}, sub: {sub_rand:.2f})")
+                print(f"Action: Move & Click ({rand_val:.2f})")
                 sys.stdout.flush()
-                # Default wait
-                time.sleep(0.5)
-        
-        # Check if need to refresh browser (every 10 minutes)
-        current_time = time.time()
-        if current_time - last_refresh_time >= REFRESH_INTERVAL:
-            print("Action: Refreshing browser...")
+                
+                if not IS_DEBUG:
+                    pyautogui.moveTo(tx, ty, duration=0.5)
+                    pyautogui.mouseDown(button='left')
+                    hold_time = random.uniform(0.5, 2.0)
+                    time.sleep(hold_time)
+                    pyautogui.mouseUp(button='left')
+            
+            # 2. Logic if random value < 0.6: Only Move
+            elif rand_val < 0.6:
+                angle = random.uniform(0, 2 * math.pi)
+                tx = center_x + radius * math.cos(angle)
+                ty = center_y + radius * math.sin(angle)
+                
+                print(f"Action: Move Only ({rand_val:.2f})")
+                sys.stdout.flush()
+                
+                if not IS_DEBUG:
+                    pyautogui.moveTo(tx, ty, duration=0.5)
+            
+            # 3. Logic if random value >= 0.6: Special Actions
+            else:
+                sub_rand = random.random()
+                
+                if sub_rand < 0.2:
+                    last_action_type = do_chat(last_action_type)
+                elif sub_rand < 0.5:
+                    last_action_type = do_drop(last_action_type)
+                else:
+                    print(f"Action: Skipped > 0.6 ({rand_val:.2f}, sub: {sub_rand:.2f})")
+                    sys.stdout.flush()
+                    time.sleep(0.5)
+            
+            # Check if need to refresh browser
+            current_time = time.time()
+            if current_time - last_refresh_time >= REFRESH_INTERVAL:
+                print("Action: Refreshing browser...")
+                sys.stdout.flush()
+                pyautogui.press('f5')
+                last_refresh_time = current_time
+                time.sleep(2)
+
+            time.sleep(EXECUTION_INTERVAL)
+            
+        except Exception as e:
+            print(f"Error: {e}")
             sys.stdout.flush()
-            pyautogui.press('f5')
-            last_refresh_time = current_time
-            time.sleep(2)  # Wait for page to reload
+            time.sleep(EXECUTION_INTERVAL)
 
-        # Wait for the next execution interval
-        time.sleep(EXECUTION_INTERVAL)
-    except Exception as e:
-        print(f"Error: {e}")
+# Run with auto-restart
+while True:
+    # Check stop flag before starting
+    if os.path.exists(STOP_FLAG_FILE):
+        print("Stop flag detected. Exiting...")
         sys.stdout.flush()
-        time.sleep(EXECUTION_INTERVAL)
-
+        os.remove(STOP_FLAG_FILE)
+        break
+    
+    # Reset refresh time
+    last_refresh_time = time.time()
+    
+    print("Starting main loop...")
+    sys.stdout.flush()
+    
+    try:
+        main_loop()
+    except Exception as e:
+        print(f"Outer loop error: {e}")
+        sys.stdout.flush()
+        # Continue to restart
+        continue
