@@ -38,7 +38,7 @@ last_refresh_time = time.time()
 
 width, height = pyautogui.size()
 center_x, center_y = width // 2, height // 2
-radius = 150
+radius = 300
 
 print(f"Physical mover started. Screen: {width}x{height}. Center: ({center_x}, {center_y}), Name: {NAME}")
 sys.stdout.flush()
