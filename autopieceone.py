@@ -104,7 +104,7 @@ def do_chat(last_action_type):
             "https://api.piece.one/chat.php", 
             headers={'User-Agent': 'Mozilla/5.0'}
         )
-        with urllib.request.urlopen(req, timeout=5) as response:
+        with urllib.request.urlopen(req, timeout=180) as response:
             if response.status == 200:
                 content = response.read().decode('utf-8')
                 data_json = json.loads(content)
