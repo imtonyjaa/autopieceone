@@ -62,10 +62,7 @@ browser(action="tabs")
 # 3. Open game page (MUST include widget=2&from=claw)
 browser(action="open", targetUrl="https://piece.one/?widget=2&from=claw")
 
-# 4. Fullscreen browser (press F11)
-exec(command='python -c "import pyautogui; pyautogui.press(\"f11\")"')
-
-# 5. Wait for game to load
+# 4. Wait for game to load
 time.sleep(3)
 
 # 6. Start script (pass character name)
@@ -85,10 +82,7 @@ browser(action="tabs")
 browser(action="close", targetId="<OldID>")
 browser(action="open", targetUrl="https://piece.one/?widget=2&from=claw")
 
-# 3. Fullscreen browser (press F11)
-exec(command="python fullscreen.py")
-
-# 4. Start script (no F11 needed - stays fullscreen from first launch)
+# 3. Start script
 exec(command="python autopieceone/autopieceone.py CharacterName")
 ```
 
@@ -107,5 +101,6 @@ exec(command="python autopieceone/autopieceone.py CharacterName")
 ## Notes
 
 1. **URL Must Include Params**: `?widget=2&from=claw`
-2. **Game Window Priority**: The script uses system-level mouse control, so the game window must be in the foreground.
+2. **Manual Fullscreen**: Press F11 once manually after first launch. The browser will stay in fullscreen mode for subsequent launches.
+3. **Game Window Priority**: The script uses system-level mouse control, so the game window must be in the foreground.
 3. **Terminate Script**: Move the mouse to any corner of the screen to trigger pyautogui FAILSAFE and stop the script immediately.
