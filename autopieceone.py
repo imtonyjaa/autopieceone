@@ -241,7 +241,7 @@ while True:
         # Wait for the next execution interval
         time.sleep(EXECUTION_INTERVAL)
     except Exception as e:
-        print(f"Stopped: {e}")
+        print(f"Error: {e}")
         sys.stdout.flush()
-        break
+        time.sleep(EXECUTION_INTERVAL)
 
