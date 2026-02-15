@@ -254,7 +254,7 @@ while True:
     try:
         main_loop()
     except Exception as e:
-        print(f"Outer loop error: {e}")
+        print(f"Outer loop error: {e}, restarting in 5 seconds...")
         sys.stdout.flush()
-        # Continue to restart
+        time.sleep(5)
         continue
